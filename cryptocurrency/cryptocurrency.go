@@ -1,21 +1,24 @@
 package cryptocurrency
 
 import (
+	"context"
 	"net/http"
 )
 
-type HTTPDoer interface {
-	Do(req *http.Request) (*http.Response, error)
+type Executor interface {
+	Get(
+		ctx context.Context,
+		path string,
+		preProcessFn func(req *http.Request) error,
+	) (*QuotesLatestResponse, error)
 }
 
 type Cryptocurrency struct {
-	apiKey string
-	doer   HTTPDoer
+	executor Executor
 }
 
-func New(apiKey string, doer HTTPDoer) *Cryptocurrency {
+func New(executor Executor) *Cryptocurrency {
 	return &Cryptocurrency{
-		apiKey: apiKey,
-		doer:   doer,
+		executor: executor,
 	}
 }

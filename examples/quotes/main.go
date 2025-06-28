@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Mikhalevich/coinmarketcap"
 	"github.com/Mikhalevich/coinmarketcap/cryptocurrency"
 	"github.com/Mikhalevich/coinmarketcap/currency"
 )
@@ -26,7 +27,12 @@ func main() {
 			Timeout: timeout,
 		}
 
-		cc  = cryptocurrency.New(os.Getenv("COIN_MARKET_CAP_KEY"), &client)
+		prodExecutor = coinmarketcap.ProductionExecutor[*cryptocurrency.QuotesLatestResponse](
+			os.Getenv("COIN_MARKET_CAP_KEY"),
+			&client,
+		)
+
+		cc  = cryptocurrency.New(prodExecutor)
 		log = slog.New(slog.NewTextHandler(os.Stdout, nil))
 	)
 
