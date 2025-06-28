@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Mikhalevich/coinmarketcap"
 	"github.com/Mikhalevich/coinmarketcap/currency"
 )
 
@@ -146,7 +147,7 @@ func (c *Cryptocurrency) QuotesLatest(
 	}
 
 	if quotes.IsError() {
-		return nil, fmt.Errorf("response error: %s", quotes.ErrorMessage())
+		return nil, coinmarketcap.NewError(quotes.Status.ErrorCode, quotes.Status.ErrorMessage)
 	}
 
 	return &quotes, nil
