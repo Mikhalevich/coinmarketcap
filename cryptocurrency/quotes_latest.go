@@ -17,10 +17,9 @@ const (
 	comma   = ","
 )
 
-type Money float64
-
-type Quote struct {
-	Price float64 `json:"price"`
+type QuotesLatestResponse struct {
+	Data   map[string]Data `json:"data"`
+	Status Status          `json:"status"`
 }
 
 type Data struct {
@@ -38,10 +37,37 @@ type Data struct {
 	MaxSupply                     float64          `json:"max_supply"`
 	DateAdded                     time.Time        `json:"date_added"`
 	Tags                          []any            `json:"tags"`
+	Platform                      Platform         `json:"platform"`
 	LastUpdated                   time.Time        `json:"last_updated"`
 	SelfReportedCirculatingSupply float64          `json:"self_reported_circulating_supply"`
 	SelfReportedMarketCap         float64          `json:"self_reported_market_cap"`
 	Quotes                        map[string]Quote `json:"quote"`
+}
+
+type Platform struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Symbol      string `json:"symbol"`
+	Slug        string `json:"slug"`
+	TokenAdress string `json:"token_address"`
+}
+
+type Quote struct {
+	Price                 float64   `json:"price"`
+	Volume24h             float64   `json:"volume_24h"`
+	VolumeChange24h       float64   `json:"volume_change_24h"`
+	Volume24hReported     float64   `json:"volume_24h_reported"`
+	Volume7d              float64   `json:"volume_7d"`
+	Volume7dReported      float64   `json:"volume_7d_reported"`
+	Volume30d             float64   `json:"volume_30d"`
+	MarketCap             float64   `json:"market_cap"`
+	MarketCapDominance    float64   `json:"market_cap_dominance"`
+	FullyDilutedMarketCap float64   `json:"fully_diluted_market_cap"`
+	PercentChange1h       float64   `json:"percent_change_1h"`
+	PercentChange24h      float64   `json:"percent_change_24h"`
+	PercentChange7d       float64   `json:"percent_change_7d"`
+	PercentChange30d      float64   `json:"percent_change_30d"`
+	LastUpdated           time.Time `json:"last_updated"`
 }
 
 type Status struct {
@@ -53,30 +79,25 @@ type Status struct {
 	Notice       string    `json:"notice"`
 }
 
-type QuotesLatestResponse struct {
-	Data   map[string]Data `json:"data"`
-	Status Status          `json:"status"`
-}
-
-func (q *QuotesLatestResponse) Quotes(toID currency.ID) map[currency.ID]Money {
+func (q *QuotesLatestResponse) QuotePrices(baseSymbol string) map[string]float64 {
 	if len(q.Data) == 0 {
 		return nil
 	}
 
-	quotes := make(map[currency.ID]Money, len(q.Data))
+	quotes := make(map[string]float64, len(q.Data))
 
-	for extID, data := range q.Data {
-		quotes[currency.ID(extID)] = quotePrice(data, toID)
+	for symbol, data := range q.Data {
+		quotes[symbol] = quotePrice(data, baseSymbol)
 	}
 
 	return quotes
 }
 
-func quotePrice(data Data, id currency.ID) Money {
-	for extID, quote := range data.Quotes {
-		if extID == id.String() {
+func quotePrice(data Data, baseSymbol string) float64 {
+	for symbol, quote := range data.Quotes {
+		if symbol == baseSymbol {
 			if quote.Price > 0 {
-				return Money(1 / quote.Price)
+				return 1 / quote.Price
 			}
 
 			return 0
