@@ -2,7 +2,6 @@ package cryptocurrency
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -14,8 +13,8 @@ import (
 )
 
 const (
-	baseURL = "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest"
-	comma   = ","
+	quoteLatestEndpoint = "/v2/cryptocurrency/quotes/latest"
+	comma               = ","
 )
 
 type QuotesLatestResponse struct {
@@ -123,34 +122,24 @@ func (c *Cryptocurrency) QuotesLatest(
 	convertFrom []currency.Currency,
 	convertTo []currency.Currency,
 ) (*QuotesLatestResponse, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL, nil)
+	quotes, err := c.executor.Get(
+		ctx,
+		quoteLatestEndpoint,
+		func(req *http.Request) error {
+			req.URL.RawQuery = makeQuery(convertFrom, convertTo)
+
+			return nil
+		})
+
 	if err != nil {
-		return nil, fmt.Errorf("create http request: %w", err)
-	}
-
-	req.Header.Set("Accept", "application/json")
-	//nolint:canonicalheader
-	req.Header.Set("X-CMC_PRO_API_KEY", c.apiKey)
-
-	req.URL.RawQuery = makeQuery(convertFrom, convertTo)
-
-	rsp, err := c.doer.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("do http request: %w", err)
-	}
-
-	defer rsp.Body.Close()
-
-	var quotes QuotesLatestResponse
-	if err := json.NewDecoder(rsp.Body).Decode(&quotes); err != nil {
-		return nil, fmt.Errorf("json decode: %w", err)
+		return nil, fmt.Errorf("execute get request: %w", err)
 	}
 
 	if quotes.IsError() {
 		return nil, coinmarketcap.NewError(quotes.Status.ErrorCode, quotes.Status.ErrorMessage)
 	}
 
-	return &quotes, nil
+	return quotes, nil
 }
 
 func makeQuery(from []currency.Currency, to []currency.Currency) string {
