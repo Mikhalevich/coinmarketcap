@@ -4,7 +4,7 @@ GOBIN ?= $(BUILD_PATH)tools/bin
 LINTER_NAME := golangci-lint
 LINTER_VERSION := v2.1.6
  
-.PHONY: all build test install-linter lint
+.PHONY: all build test bench generate install-linter lint
 
 all: build
 
@@ -13,6 +13,12 @@ build:
 
 test:
 	go test ./... -cover
+
+bench:
+	go test -bench=. -benchmem
+
+generate:
+	go generate ./...
 
 install-linter:
 	if [ ! -f $(GOBIN)/$(LINTER_VERSION)/$(LINTER_NAME) ]; then \
