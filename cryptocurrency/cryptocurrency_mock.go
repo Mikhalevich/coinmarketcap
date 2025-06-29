@@ -42,16 +42,15 @@ func (m *MockExecutor) EXPECT() *MockExecutorMockRecorder {
 }
 
 // Get mocks base method.
-func (m *MockExecutor) Get(ctx context.Context, path string, preProcessFn func(*http.Request) error) (*QuotesLatestResponse, error) {
+func (m *MockExecutor) Get(ctx context.Context, path string, preProcessFn func(*http.Request) error, result any) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx, path, preProcessFn)
-	ret0, _ := ret[0].(*QuotesLatestResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Get", ctx, path, preProcessFn, result)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockExecutorMockRecorder) Get(ctx, path, preProcessFn any) *gomock.Call {
+func (mr *MockExecutorMockRecorder) Get(ctx, path, preProcessFn, result any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockExecutor)(nil).Get), ctx, path, preProcessFn)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockExecutor)(nil).Get), ctx, path, preProcessFn, result)
 }

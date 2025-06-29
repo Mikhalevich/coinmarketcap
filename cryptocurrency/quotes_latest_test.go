@@ -27,8 +27,8 @@ func TestQuotesLatestExecutorError(t *testing.T) {
 	)
 
 	mockExecutor.EXPECT().
-		Get(t.Context(), "/v2/cryptocurrency/quotes/latest", gomock.Any()).
-		Return(nil, errors.New("some executor error"))
+		Get(t.Context(), "/v2/cryptocurrency/quotes/latest", gomock.Any(), gomock.Any()).
+		Return(errors.New("some executor error"))
 
 	quotesRsp, err := cryptoc.QuotesLatest(
 		t.Context(),
