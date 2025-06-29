@@ -10,7 +10,8 @@ type Executor interface {
 		ctx context.Context,
 		path string,
 		preProcessFn func(req *http.Request) error,
-	) (*QuotesLatestResponse, error)
+		result any,
+	) error
 }
 
 type Cryptocurrency struct {

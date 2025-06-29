@@ -345,7 +345,7 @@ func BenchmarkRequestExecutor(b *testing.B) {
 	var (
 		ctrl     = gomock.NewController(b)
 		doer     = coinmarketcap.NewMockHTTPDoer(ctrl)
-		executor = coinmarketcap.NewRequestExecutor[*cryptocurrency.QuotesLatestResponse]("testApiKey", "testHost", doer)
+		executor = coinmarketcap.NewRequestExecutor("testApiKey", "testHost", doer)
 	)
 
 	for b.Loop() {
@@ -358,9 +358,15 @@ func BenchmarkRequestExecutor(b *testing.B) {
 				nil,
 			)
 
-		rsp, err := executor.Get(b.Context(), "some_path", func(req *http.Request) error {
-			return nil
-		})
+		var rsp cryptocurrency.QuotesLatestResponse
+		err := executor.Get(
+			b.Context(),
+			"some_path",
+			func(req *http.Request) error {
+				return nil
+			},
+			&rsp,
+		)
 
 		if err != nil {
 			b.Fatalf("unexpected get error: %v", err)

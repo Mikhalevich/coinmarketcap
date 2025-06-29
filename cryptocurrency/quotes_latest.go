@@ -122,16 +122,18 @@ func (c *Cryptocurrency) QuotesLatest(
 	convertFrom []currency.Currency,
 	convertTo []currency.Currency,
 ) (*QuotesLatestResponse, error) {
-	quotes, err := c.executor.Get(
+	var quotes QuotesLatestResponse
+
+	if err := c.executor.Get(
 		ctx,
 		quoteLatestEndpoint,
 		func(req *http.Request) error {
 			req.URL.RawQuery = makeQuery(convertFrom, convertTo)
 
 			return nil
-		})
-
-	if err != nil {
+		},
+		&quotes,
+	); err != nil {
 		return nil, fmt.Errorf("execute get request: %w", err)
 	}
 
@@ -139,7 +141,7 @@ func (c *Cryptocurrency) QuotesLatest(
 		return nil, coinmarketcap.NewError(quotes.Status.ErrorCode, quotes.Status.ErrorMessage)
 	}
 
-	return quotes, nil
+	return &quotes, nil
 }
 
 func makeQuery(from []currency.Currency, to []currency.Currency) string {

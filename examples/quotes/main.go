@@ -27,13 +27,9 @@ func main() {
 			Timeout: timeout,
 		}
 
-		prodExecutor = coinmarketcap.ProductionExecutor[*cryptocurrency.QuotesLatestResponse](
-			os.Getenv("COIN_MARKET_CAP_KEY"),
-			&client,
-		)
-
-		cc  = cryptocurrency.New(prodExecutor)
-		log = slog.New(slog.NewTextHandler(os.Stdout, nil))
+		prodExecutor = coinmarketcap.ProductionExecutor(os.Getenv("COIN_MARKET_CAP_KEY"), &client)
+		cc           = cryptocurrency.New(prodExecutor)
+		log          = slog.New(slog.NewTextHandler(os.Stdout, nil))
 	)
 
 	rsp, err := cc.QuotesLatest(
