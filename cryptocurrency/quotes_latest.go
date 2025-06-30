@@ -111,8 +111,32 @@ func (q *QuotesLatestResponse) IsError() bool {
 	return q.Status.ErrorCode != 0
 }
 
-func (q *QuotesLatestResponse) ErrorMessage() string {
-	return fmt.Sprintf("code: %d: msg: %s", q.Status.ErrorCode, q.Status.ErrorMessage)
+type quotesLatestOptions struct {
+	Aux         []string
+	SkipInvalid bool
+}
+
+// QuotesLatestOption quotes latest optional param.
+type QuotesLatestOption func(opts *quotesLatestOptions)
+
+// WithSkipInvalid specify request validation rules.
+// When requesting records on multiple cryptocurrencies an error is returned
+// if no match is found for 1 or more requested cryptocurrencies.
+// If set to true, invalid lookups will be skipped allowing valid cryptocurrencies to still be returned.
+// By default true.
+func WithSkipInvalid(skip bool) QuotesLatestOption {
+	return func(opts *quotesLatestOptions) {
+		opts.SkipInvalid = skip
+	}
+}
+
+// WithAux specify a list of supplemental data fields to return.
+// By default "num_market_pairs, cmc_rank, date_added, tags, platform,
+// max_supply, circulating_supply, total_supply, is_active, is_fiat".
+func WithAux(fields ...string) QuotesLatestOption {
+	return func(opts *quotesLatestOptions) {
+		opts.Aux = fields
+	}
 }
 
 // QuotesLatest returns the latest market quote for 1 or more cryptocurrencies.
@@ -121,14 +145,24 @@ func (c *Cryptocurrency) QuotesLatest(
 	ctx context.Context,
 	convertFrom []currency.Currency,
 	convertTo []currency.Currency,
+	withOpts ...QuotesLatestOption,
 ) (*QuotesLatestResponse, error) {
-	var quotes QuotesLatestResponse
+	var (
+		options = quotesLatestOptions{
+			SkipInvalid: true,
+		}
+		quotes QuotesLatestResponse
+	)
+
+	for _, option := range withOpts {
+		option(&options)
+	}
 
 	if err := c.executor.Get(
 		ctx,
 		quoteLatestEndpoint,
 		func(req *http.Request) error {
-			req.URL.RawQuery = makeQuery(convertFrom, convertTo)
+			req.URL.RawQuery = makeQuery(convertFrom, convertTo, options)
 
 			return nil
 		},
@@ -144,12 +178,30 @@ func (c *Cryptocurrency) QuotesLatest(
 	return &quotes, nil
 }
 
-func makeQuery(from []currency.Currency, to []currency.Currency) string {
-	q := make(url.Values)
-	q.Add(makeConvertToQueryKey(to), makeCommaSeparatedValues(makeValues(to)))
-	q.Add(makeConvertFromQueryKey(from), makeCommaSeparatedValues(makeValues(from)))
+func makeQuery(
+	from []currency.Currency,
+	to []currency.Currency,
+	options quotesLatestOptions,
+) string {
+	query := make(url.Values)
+	query.Add(makeConvertToQueryKey(to), makeCommaSeparatedValues(makeValues(to)))
+	query.Add(makeConvertFromQueryKey(from), makeCommaSeparatedValues(makeValues(from)))
 
-	return q.Encode()
+	if len(options.Aux) > 0 {
+		query.Add("aux", makeCommaSeparatedValues(options.Aux))
+	}
+
+	query.Add("skip_invalid", boolToString(options.SkipInvalid))
+
+	return query.Encode()
+}
+
+func boolToString(b bool) string {
+	if b {
+		return "true"
+	}
+
+	return "false"
 }
 
 func makeConvertFromQueryKey(from []currency.Currency) string {

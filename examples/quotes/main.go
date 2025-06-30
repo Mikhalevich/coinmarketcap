@@ -36,6 +36,7 @@ func main() {
 		context.Background(),
 		[]currency.Currency{currency.FromID(btcID), currency.FromID(ltcID)},
 		[]currency.Currency{currency.FromID(usdID)},
+		cryptocurrency.WithSkipInvalid(false),
 	)
 
 	if err != nil {
