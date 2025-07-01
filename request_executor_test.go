@@ -209,7 +209,7 @@ func BenchmarkRequestExecutor(b *testing.B) {
 							}
 					],
 					"platform": {
-							"id": 0,
+							"id": "",
 							"name": "",
 							"symbol": "",
 							"slug": "",
@@ -300,7 +300,7 @@ func BenchmarkRequestExecutor(b *testing.B) {
 							}
 					],
 					"platform": {
-							"id": 0,
+							"id": "",
 							"name": "",
 							"symbol": "",
 							"slug": "",
