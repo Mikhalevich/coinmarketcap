@@ -45,7 +45,7 @@ type Data struct {
 }
 
 type Platform struct {
-	ID          int    `json:"id"`
+	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Symbol      string `json:"symbol"`
 	Slug        string `json:"slug"`
@@ -79,6 +79,10 @@ type Status struct {
 	Notice       string    `json:"notice"`
 }
 
+func (s Status) IsError() bool {
+	return s.ErrorCode != 0
+}
+
 func (q *QuotesLatestResponse) QuotePrices(baseSymbol string) map[string]float64 {
 	if len(q.Data) == 0 {
 		return nil
@@ -105,10 +109,6 @@ func quotePrice(data Data, baseSymbol string) float64 {
 	}
 
 	return 0
-}
-
-func (q *QuotesLatestResponse) IsError() bool {
-	return q.Status.ErrorCode != 0
 }
 
 type quotesLatestOptions struct {
@@ -162,7 +162,7 @@ func (c *Cryptocurrency) QuotesLatest(
 		ctx,
 		quoteLatestEndpoint,
 		func(req *http.Request) error {
-			req.URL.RawQuery = makeQuery(convertFrom, convertTo, options)
+			req.URL.RawQuery = makeQuotesLatestQuery(convertFrom, convertTo, options)
 
 			return nil
 		},
@@ -171,21 +171,21 @@ func (c *Cryptocurrency) QuotesLatest(
 		return nil, fmt.Errorf("execute get request: %w", err)
 	}
 
-	if quotes.IsError() {
+	if quotes.Status.IsError() {
 		return nil, coinmarketcap.NewError(quotes.Status.ErrorCode, quotes.Status.ErrorMessage)
 	}
 
 	return &quotes, nil
 }
 
-func makeQuery(
+func makeQuotesLatestQuery(
 	from []currency.Currency,
 	to []currency.Currency,
 	options quotesLatestOptions,
 ) string {
 	query := make(url.Values)
-	query.Add(makeConvertToQueryKey(to), makeCommaSeparatedValues(makeValues(to)))
-	query.Add(makeConvertFromQueryKey(from), makeCommaSeparatedValues(makeValues(from)))
+	query.Add(makeConvertToQueryKey(to), makeCommaSeparatedValues(convertCurrenciesToQueryKey(to)))
+	query.Add(makeCurrencyQueryKey(from), makeCommaSeparatedValues(convertCurrenciesToQueryKey(from)))
 
 	if len(options.Aux) > 0 {
 		query.Add("aux", makeCommaSeparatedValues(options.Aux))
@@ -204,7 +204,7 @@ func boolToString(b bool) string {
 	return "false"
 }
 
-func makeConvertFromQueryKey(from []currency.Currency) string {
+func makeCurrencyQueryKey(from []currency.Currency) string {
 	if len(from) == 0 {
 		return ""
 	}
@@ -240,7 +240,7 @@ func makeConvertToQueryKey(from []currency.Currency) string {
 	return ""
 }
 
-func makeValues(from []currency.Currency) []string {
+func convertCurrenciesToQueryKey(from []currency.Currency) []string {
 	if len(from) == 0 {
 		return nil
 	}

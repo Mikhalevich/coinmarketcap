@@ -28,11 +28,11 @@ func main() {
 		}
 
 		prodExecutor = coinmarketcap.ProductionExecutor(os.Getenv("COIN_MARKET_CAP_KEY"), &client)
-		cc           = cryptocurrency.New(prodExecutor)
+		cryptoc      = cryptocurrency.New(prodExecutor)
 		log          = slog.New(slog.NewTextHandler(os.Stdout, nil))
 	)
 
-	rsp, err := cc.QuotesLatest(
+	quotes, err := cryptoc.QuotesLatest(
 		context.Background(),
 		[]currency.Currency{currency.FromID(btcID), currency.FromID(ltcID)},
 		[]currency.Currency{currency.FromID(usdID)},
@@ -44,7 +44,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	bytes, err := json.MarshalIndent(rsp, "", "	")
+	jsonPrint(quotes, log)
+
+	info, err := cryptoc.Info(
+		context.Background(),
+		[]currency.Currency{currency.Slug("bitcoin"), currency.Slug("litecoin")},
+	)
+
+	if err != nil {
+		log.Error("request info", "error", err.Error())
+		os.Exit(1)
+	}
+
+	jsonPrint(info, log)
+}
+
+func jsonPrint(response any, log *slog.Logger) {
+	bytes, err := json.MarshalIndent(response, "", "	")
 	if err != nil {
 		log.Error("marshal json", "error", err.Error())
 		os.Exit(1)
