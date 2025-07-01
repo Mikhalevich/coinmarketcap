@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/coinmarketcap"
-	"github.com/Mikhalevich/coinmarketcap/cryptocurrency"
+	"github.com/Mikhalevich/coinmarketcap/api/cryptocurrency"
 	"github.com/Mikhalevich/coinmarketcap/currency"
 )
 

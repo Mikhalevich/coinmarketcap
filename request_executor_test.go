@@ -6,9 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Mikhalevich/coinmarketcap"
-	"github.com/Mikhalevich/coinmarketcap/cryptocurrency"
 	"go.uber.org/mock/gomock"
+
+	"github.com/Mikhalevich/coinmarketcap"
+	"github.com/Mikhalevich/coinmarketcap/api/cryptocurrency"
 )
 
 func BenchmarkRequestExecutor(b *testing.B) {
