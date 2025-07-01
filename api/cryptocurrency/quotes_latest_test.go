@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/Mikhalevich/coinmarketcap/cryptocurrency"
+	"github.com/Mikhalevich/coinmarketcap/api/cryptocurrency"
 	"github.com/Mikhalevich/coinmarketcap/currency"
 )
 

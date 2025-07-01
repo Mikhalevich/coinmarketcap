@@ -9,7 +9,7 @@ LINTER_VERSION := v2.1.6
 all: build
 
 build:
-	go build ./cryptocurrency
+	go build ./api/cryptocurrency
 
 test:
 	go test ./... -cover
