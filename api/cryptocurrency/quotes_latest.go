@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/coinmarketcap"
+	"github.com/Mikhalevich/coinmarketcap/api/types"
 	"github.com/Mikhalevich/coinmarketcap/currency"
 )
 
@@ -19,7 +20,7 @@ const (
 
 type QuotesLatestResponse struct {
 	Data   map[string]Data `json:"data"`
-	Status Status          `json:"status"`
+	Status types.Status    `json:"status"`
 }
 
 type Data struct {
@@ -37,19 +38,11 @@ type Data struct {
 	MaxSupply                     float64          `json:"max_supply"`
 	DateAdded                     time.Time        `json:"date_added"`
 	Tags                          []any            `json:"tags"`
-	Platform                      Platform         `json:"platform"`
+	Platform                      types.Platform   `json:"platform"`
 	LastUpdated                   time.Time        `json:"last_updated"`
 	SelfReportedCirculatingSupply float64          `json:"self_reported_circulating_supply"`
 	SelfReportedMarketCap         float64          `json:"self_reported_market_cap"`
 	Quotes                        map[string]Quote `json:"quote"`
-}
-
-type Platform struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Symbol      string `json:"symbol"`
-	Slug        string `json:"slug"`
-	TokenAdress string `json:"token_address"`
 }
 
 type Quote struct {
@@ -68,19 +61,6 @@ type Quote struct {
 	PercentChange7d       float64   `json:"percent_change_7d"`
 	PercentChange30d      float64   `json:"percent_change_30d"`
 	LastUpdated           time.Time `json:"last_updated"`
-}
-
-type Status struct {
-	Timestamp    time.Time `json:"timestamp"`
-	ErrorCode    int       `json:"error_code"`
-	ErrorMessage string    `json:"error_message"`
-	Elapsed      int       `json:"elapsed"`
-	CreditCount  int       `json:"credit_count"`
-	Notice       string    `json:"notice"`
-}
-
-func (s Status) IsError() bool {
-	return s.ErrorCode != 0
 }
 
 func (q *QuotesLatestResponse) QuotePrices(baseSymbol string) map[string]float64 {

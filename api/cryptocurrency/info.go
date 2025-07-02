@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/coinmarketcap"
+	"github.com/Mikhalevich/coinmarketcap/api/types"
 	"github.com/Mikhalevich/coinmarketcap/currency"
 )
 
@@ -17,27 +18,27 @@ const (
 
 type InfoResponse struct {
 	Data   map[string]InfoData `json:"data"`
-	Status Status              `json:"status"`
+	Status types.Status        `json:"status"`
 }
 
 type InfoData struct {
-	ID                            int       `json:"id"`
-	Name                          string    `json:"name"`
-	Symbol                        string    `json:"symbol"`
-	Category                      string    `json:"category"`
-	Slug                          string    `json:"slug"`
-	Logo                          string    `json:"logo"`
-	Description                   string    `json:"description"`
-	DateAdded                     time.Time `json:"date_added"`
-	DateLaunched                  time.Time `json:"date_launched"`
-	Notice                        string    `json:"notice"`
-	Tags                          []any     `json:"tags"`
-	Platform                      Platform  `json:"platform"`
-	SelfReportedCirculatingSupply float64   `json:"self_reported_circulating_supply"`
-	SelfReportedMarketCap         float64   `json:"self_reported_market_cap"`
-	SelfReportedTags              []any     `json:"self_reported_tags"`
-	InfiniteSupply                bool      `json:"infinite_supply"`
-	Urls                          InfoUrls  `json:"urls"`
+	ID                            int            `json:"id"`
+	Name                          string         `json:"name"`
+	Symbol                        string         `json:"symbol"`
+	Category                      string         `json:"category"`
+	Slug                          string         `json:"slug"`
+	Logo                          string         `json:"logo"`
+	Description                   string         `json:"description"`
+	DateAdded                     time.Time      `json:"date_added"`
+	DateLaunched                  time.Time      `json:"date_launched"`
+	Notice                        string         `json:"notice"`
+	Tags                          []any          `json:"tags"`
+	Platform                      types.Platform `json:"platform"`
+	SelfReportedCirculatingSupply float64        `json:"self_reported_circulating_supply"`
+	SelfReportedMarketCap         float64        `json:"self_reported_market_cap"`
+	SelfReportedTags              []any          `json:"self_reported_tags"`
+	InfiniteSupply                bool           `json:"infinite_supply"`
+	Urls                          InfoUrls       `json:"urls"`
 }
 
 type InfoUrls struct {
