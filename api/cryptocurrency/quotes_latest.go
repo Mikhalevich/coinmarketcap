@@ -19,11 +19,11 @@ const (
 )
 
 type QuotesLatestResponse struct {
-	Data   map[string]Data `json:"data"`
-	Status types.Status    `json:"status"`
+	Data   map[string]QuoteLatestData `json:"data"`
+	Status types.Status               `json:"status"`
 }
 
-type Data struct {
+type QuoteLatestData struct {
 	ID                            int              `json:"id"`
 	Name                          string           `json:"name"`
 	Symbol                        string           `json:"symbol"`
@@ -77,7 +77,7 @@ func (q *QuotesLatestResponse) QuotePrices(baseSymbol string) map[string]float64
 	return quotes
 }
 
-func quotePrice(data Data, baseSymbol string) float64 {
+func quotePrice(data QuoteLatestData, baseSymbol string) float64 {
 	for symbol, quote := range data.Quotes {
 		if symbol == baseSymbol {
 			if quote.Price > 0 {
