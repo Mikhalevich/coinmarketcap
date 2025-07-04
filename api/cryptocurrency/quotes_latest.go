@@ -99,21 +99,21 @@ type quotesLatestOptions struct {
 // QuotesLatestOption quotes latest optional param.
 type QuotesLatestOption func(opts *quotesLatestOptions)
 
-// WithSkipInvalid specify request validation rules.
+// WithQLSkipInvalid specify request validation rules.
 // When requesting records on multiple cryptocurrencies an error is returned
 // if no match is found for 1 or more requested cryptocurrencies.
 // If set to true, invalid lookups will be skipped allowing valid cryptocurrencies to still be returned.
 // By default true.
-func WithSkipInvalid(skip bool) QuotesLatestOption {
+func WithQLSkipInvalid(skip bool) QuotesLatestOption {
 	return func(opts *quotesLatestOptions) {
 		opts.SkipInvalid = skip
 	}
 }
 
-// WithAux specify a list of supplemental data fields to return.
+// WithQLAux specify a list of supplemental data fields to return.
 // By default "num_market_pairs, cmc_rank, date_added, tags, platform,
 // max_supply, circulating_supply, total_supply, is_active, is_fiat".
-func WithAux(fields ...string) QuotesLatestOption {
+func WithQLAux(fields ...string) QuotesLatestOption {
 	return func(opts *quotesLatestOptions) {
 		opts.Aux = fields
 	}
