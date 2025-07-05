@@ -1,6 +1,7 @@
 package coinmarketcap_test
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -10,11 +11,11 @@ import (
 
 	"github.com/Mikhalevich/coinmarketcap"
 	"github.com/Mikhalevich/coinmarketcap/api/cryptocurrency"
+	"github.com/stretchr/testify/require"
 )
 
-func BenchmarkRequestExecutor(b *testing.B) {
-	const (
-		responseBody = `
+const (
+	successResponseBody = `
 {
 	"data": {
 			"1": {
@@ -339,10 +340,10 @@ func BenchmarkRequestExecutor(b *testing.B) {
 			"notice": ""
 	}
 }
+	`
+)
 
-		`
-	)
-
+func BenchmarkRequestExecutor(b *testing.B) {
 	var (
 		ctrl     = gomock.NewController(b)
 		doer     = coinmarketcap.NewMockHTTPDoer(ctrl)
@@ -354,7 +355,7 @@ func BenchmarkRequestExecutor(b *testing.B) {
 			Do(gomock.Any()).
 			Return(
 				&http.Response{
-					Body: io.NopCloser(strings.NewReader(responseBody)),
+					Body: io.NopCloser(strings.NewReader(successResponseBody)),
 				},
 				nil,
 			)
@@ -377,4 +378,208 @@ func BenchmarkRequestExecutor(b *testing.B) {
 			b.Fatal("invalid response data")
 		}
 	}
+}
+
+func TestMakeEndpointError(t *testing.T) {
+	t.Parallel()
+
+	var (
+		ctrl = gomock.NewController(t)
+		doer = coinmarketcap.NewMockHTTPDoer(ctrl)
+	)
+
+	t.Run("missing protocol", func(t *testing.T) {
+		t.Parallel()
+
+		executor := coinmarketcap.NewRequestExecutor("testApiKey", ":some_host", doer)
+
+		var rsp cryptocurrency.InfoResponse
+		err := executor.Get(
+			t.Context(),
+			"some_path",
+			func(req *http.Request) error {
+				return nil
+			},
+			&rsp,
+		)
+
+		require.EqualError(t, err, "make endpoint url: parse \":some_host\": missing protocol scheme")
+	})
+}
+
+func TestMakeRequestError(t *testing.T) {
+	t.Parallel()
+
+	var (
+		ctrl     = gomock.NewController(t)
+		doer     = coinmarketcap.NewMockHTTPDoer(ctrl)
+		executor = coinmarketcap.NewRequestExecutor("testApiKey", "some_host", doer)
+	)
+
+	var rsp cryptocurrency.InfoResponse
+	//nolint:staticcheck
+	err := executor.Get(
+		nil,
+		"some_path",
+		func(req *http.Request) error {
+			return errors.New("some pre process error")
+		},
+		&rsp,
+	)
+
+	require.EqualError(t, err, "create http request: net/http: nil Context")
+}
+
+func TestPreProccessError(t *testing.T) {
+	t.Parallel()
+
+	var (
+		ctrl     = gomock.NewController(t)
+		doer     = coinmarketcap.NewMockHTTPDoer(ctrl)
+		executor = coinmarketcap.NewRequestExecutor("testApiKey", "some_host", doer)
+	)
+
+	var rsp cryptocurrency.InfoResponse
+	err := executor.Get(
+		t.Context(),
+		"some_path",
+		func(req *http.Request) error {
+			return errors.New("some pre process error")
+		},
+		&rsp,
+	)
+
+	require.EqualError(t, err, "pre process: some pre process error")
+}
+
+func TestDoerError(t *testing.T) {
+	t.Parallel()
+
+	var (
+		ctrl     = gomock.NewController(t)
+		doer     = coinmarketcap.NewMockHTTPDoer(ctrl)
+		executor = coinmarketcap.NewRequestExecutor("testApiKey", "some_host", doer)
+	)
+
+	doer.EXPECT().Do(gomock.Any()).Return(nil, errors.New("some do error"))
+
+	var rsp cryptocurrency.InfoResponse
+	err := executor.Get(
+		t.Context(),
+		"some_path",
+		func(req *http.Request) error {
+			return nil
+		},
+		&rsp,
+	)
+
+	require.EqualError(t, err, "do http request: some do error")
+}
+
+func TestDecodeResponseJSONError(t *testing.T) {
+	t.Parallel()
+
+	var (
+		ctrl     = gomock.NewController(t)
+		doer     = coinmarketcap.NewMockHTTPDoer(ctrl)
+		executor = coinmarketcap.NewRequestExecutor("testApiKey", "some_host", doer)
+	)
+
+	t.Run("empty response", func(t *testing.T) {
+		t.Parallel()
+
+		doer.EXPECT().
+			Do(gomock.Any()).
+			Return(&http.Response{
+				Body: io.NopCloser(strings.NewReader("")),
+			}, nil)
+
+		var rsp cryptocurrency.InfoResponse
+		err := executor.Get(
+			t.Context(),
+			"some_path",
+			func(req *http.Request) error {
+				return nil
+			},
+			&rsp,
+		)
+
+		require.EqualError(t, err, "json decode: EOF")
+	})
+
+	t.Run("invalid json", func(t *testing.T) {
+		t.Parallel()
+
+		doer.EXPECT().
+			Do(gomock.Any()).
+			Return(&http.Response{
+				Body: io.NopCloser(strings.NewReader("invalid json")),
+			}, nil)
+
+		var rsp cryptocurrency.InfoResponse
+		err := executor.Get(
+			t.Context(),
+			"some_path",
+			func(req *http.Request) error {
+				return nil
+			},
+			&rsp,
+		)
+
+		require.EqualError(t, err, "json decode: invalid character 'i' looking for beginning of value")
+	})
+
+	t.Run("json array instead of object", func(t *testing.T) {
+		t.Parallel()
+
+		doer.EXPECT().
+			Do(gomock.Any()).
+			Return(&http.Response{
+				Body: io.NopCloser(strings.NewReader("[]")),
+			}, nil)
+
+		var rsp cryptocurrency.InfoResponse
+		err := executor.Get(
+			t.Context(),
+			"some_path",
+			func(req *http.Request) error {
+				return nil
+			},
+			&rsp,
+		)
+
+		require.EqualError(t, err,
+			"json decode: json: cannot unmarshal array into Go value of type cryptocurrency.InfoResponse")
+	})
+}
+
+func TestSuccess(t *testing.T) {
+	t.Parallel()
+
+	var (
+		ctrl     = gomock.NewController(t)
+		doer     = coinmarketcap.NewMockHTTPDoer(ctrl)
+		executor = coinmarketcap.NewRequestExecutor("testApiKey", "some_host", doer)
+	)
+
+	doer.EXPECT().
+		Do(gomock.Any()).
+		Return(
+			&http.Response{
+				Body: io.NopCloser(strings.NewReader(successResponseBody)),
+			},
+			nil,
+		)
+
+	var rsp cryptocurrency.InfoResponse
+	err := executor.Get(
+		t.Context(),
+		"some_path",
+		func(req *http.Request) error {
+			return nil
+		},
+		&rsp,
+	)
+
+	require.NoError(t, err)
 }
