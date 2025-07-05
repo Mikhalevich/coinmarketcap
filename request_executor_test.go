@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
 	"github.com/Mikhalevich/coinmarketcap"
 	"github.com/Mikhalevich/coinmarketcap/api/cryptocurrency"
-	"github.com/stretchr/testify/require"
 )
 
 const (
