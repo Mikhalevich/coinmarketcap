@@ -57,6 +57,15 @@ func main() {
 	}
 
 	jsonPrint(info, log)
+
+	mappings, err := cryptoc.Map(context.Background())
+
+	if err != nil {
+		log.Error("request map", "error", err.Error())
+		os.Exit(1)
+	}
+
+	jsonPrint(mappings, log)
 }
 
 func jsonPrint(response any, log *slog.Logger) {
