@@ -34,16 +34,16 @@ const (
 )
 
 type MapData struct {
-	ID                  int            `json:"id"`
-	Rank                float64        `json:"rank"`
-	Name                string         `json:"name"`
-	Symbol              string         `json:"symbol"`
-	Slug                string         `json:"slug"`
-	IsActive            int            `json:"is_active"`
-	Status              MapStatus      `json:"status"`
-	FirstHistoricalData time.Time      `json:"first_historical_data"`
-	LastHistoricalData  time.Time      `json:"last_historical_data"`
-	Platform            types.Platform `json:"platform"`
+	ID                  int              `json:"id"`
+	Rank                float64          `json:"rank"`
+	Name                string           `json:"name"`
+	Symbol              string           `json:"symbol"`
+	Slug                string           `json:"slug"`
+	IsActive            int              `json:"is_active"`
+	Status              int              `json:"status"`
+	FirstHistoricalData time.Time        `json:"first_historical_data"`
+	LastHistoricalData  time.Time        `json:"last_historical_data"`
+	Platform            types.PlatformV1 `json:"platform"`
 }
 
 type MapSortField string
@@ -102,7 +102,7 @@ func WithMapSort(field MapSortField) MapOption {
 
 // WithMapSymbol list of cryptocurrency symbols to return CoinMarketCap IDs for.
 // If this option is passed, other options will be ignored.
-func WithMapSymbol(symbols []string) MapOption {
+func WithMapSymbol(symbols ...string) MapOption {
 	return func(opts *mapOptions) {
 		opts.Symbol = symbols
 	}
@@ -124,7 +124,7 @@ func (c *Cryptocurrency) Map(
 ) (*MapResponse, error) {
 	var (
 		options = mapOptions{
-			ListingStatus: "active",
+			ListingStatus: MapStatusActive,
 			Start:         1,
 			Sort:          MapSortID,
 		}
@@ -158,12 +158,6 @@ func (c *Cryptocurrency) Map(
 func makeMapQuery(options mapOptions) string {
 	query := make(url.Values)
 
-	if len(options.Symbol) > 0 {
-		query.Add("symbol", makeCommaSeparatedValues(options.Symbol))
-
-		return query.Encode()
-	}
-
 	if options.ListingStatus != "" {
 		query.Add("listing_status", options.ListingStatus.String())
 	}
@@ -178,6 +172,10 @@ func makeMapQuery(options mapOptions) string {
 
 	if options.Sort != "" {
 		query.Add("sort", options.Sort.String())
+	}
+
+	if len(options.Symbol) > 0 {
+		query.Add("symbol", makeCommaSeparatedValues(options.Symbol))
 	}
 
 	if len(options.Aux) > 0 {

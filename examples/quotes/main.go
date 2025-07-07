@@ -58,7 +58,10 @@ func main() {
 
 	jsonPrint(info, log)
 
-	mappings, err := cryptoc.Map(context.Background())
+	mappings, err := cryptoc.Map(
+		context.Background(),
+		cryptocurrency.WithMapSymbol("BTC"),
+	)
 
 	if err != nil {
 		log.Error("request map", "error", err.Error())
