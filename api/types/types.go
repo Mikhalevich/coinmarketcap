@@ -17,7 +17,15 @@ func (s Status) IsError() bool {
 	return s.ErrorCode != 0
 }
 
-type Platform struct {
+type PlatformV1 struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Symbol      string `json:"symbol"`
+	Slug        string `json:"slug"`
+	TokenAdress string `json:"token_address"`
+}
+
+type PlatformV2 struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Symbol      string `json:"symbol"`

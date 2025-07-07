@@ -38,7 +38,7 @@ type QuoteLatestData struct {
 	MaxSupply                     float64          `json:"max_supply"`
 	DateAdded                     time.Time        `json:"date_added"`
 	Tags                          []any            `json:"tags"`
-	Platform                      types.Platform   `json:"platform"`
+	Platform                      types.PlatformV2 `json:"platform"`
 	LastUpdated                   time.Time        `json:"last_updated"`
 	SelfReportedCirculatingSupply float64          `json:"self_reported_circulating_supply"`
 	SelfReportedMarketCap         float64          `json:"self_reported_market_cap"`
