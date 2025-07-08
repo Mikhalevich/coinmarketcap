@@ -361,6 +361,7 @@ func BenchmarkRequestExecutor(b *testing.B) {
 			)
 
 		var rsp cryptocurrency.QuotesLatestResponse
+
 		err := executor.Get(
 			b.Context(),
 			"some_path",
@@ -369,7 +370,6 @@ func BenchmarkRequestExecutor(b *testing.B) {
 			},
 			&rsp,
 		)
-
 		if err != nil {
 			b.Fatalf("unexpected get error: %v", err)
 		}
@@ -394,6 +394,7 @@ func TestMakeEndpointError(t *testing.T) {
 		executor := coinmarketcap.NewRequestExecutor("testApiKey", ":some_host", doer)
 
 		var rsp cryptocurrency.InfoResponse
+
 		err := executor.Get(
 			t.Context(),
 			"some_path",
@@ -440,6 +441,7 @@ func TestPreProccessError(t *testing.T) {
 	)
 
 	var rsp cryptocurrency.InfoResponse
+
 	err := executor.Get(
 		t.Context(),
 		"some_path",
@@ -464,6 +466,7 @@ func TestDoerError(t *testing.T) {
 	doer.EXPECT().Do(gomock.Any()).Return(nil, errors.New("some do error"))
 
 	var rsp cryptocurrency.InfoResponse
+
 	err := executor.Get(
 		t.Context(),
 		"some_path",
@@ -495,6 +498,7 @@ func TestDecodeResponseJSONError(t *testing.T) {
 			}, nil)
 
 		var rsp cryptocurrency.InfoResponse
+
 		err := executor.Get(
 			t.Context(),
 			"some_path",
@@ -517,6 +521,7 @@ func TestDecodeResponseJSONError(t *testing.T) {
 			}, nil)
 
 		var rsp cryptocurrency.InfoResponse
+
 		err := executor.Get(
 			t.Context(),
 			"some_path",
@@ -539,6 +544,7 @@ func TestDecodeResponseJSONError(t *testing.T) {
 			}, nil)
 
 		var rsp cryptocurrency.InfoResponse
+
 		err := executor.Get(
 			t.Context(),
 			"some_path",
@@ -572,6 +578,7 @@ func TestSuccess(t *testing.T) {
 		)
 
 	var rsp cryptocurrency.InfoResponse
+
 	err := executor.Get(
 		t.Context(),
 		"some_path",
