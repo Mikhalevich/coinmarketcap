@@ -38,7 +38,6 @@ func main() {
 		[]currency.Currency{currency.FromID(usdID)},
 		cryptocurrency.WithQLSkipInvalid(false),
 	)
-
 	if err != nil {
 		log.Error("request quotes latest", "error", err.Error())
 		os.Exit(1)
@@ -50,7 +49,6 @@ func main() {
 		context.Background(),
 		[]currency.Currency{currency.Slug("bitcoin"), currency.Slug("litecoin")},
 	)
-
 	if err != nil {
 		log.Error("request info", "error", err.Error())
 		os.Exit(1)
@@ -62,7 +60,6 @@ func main() {
 		context.Background(),
 		cryptocurrency.WithMapSymbol("BTC"),
 	)
-
 	if err != nil {
 		log.Error("request map", "error", err.Error())
 		os.Exit(1)

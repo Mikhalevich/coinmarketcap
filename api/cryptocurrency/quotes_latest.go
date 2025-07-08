@@ -257,6 +257,7 @@ func makeCommaSeparatedValues(currencies []string) string {
 	}
 
 	var bufLen int
+
 	bufLen += len(comma)*len(currencies) - 1
 
 	for _, curr := range currencies {
