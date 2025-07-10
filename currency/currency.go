@@ -1,31 +1,20 @@
 package currency
 
-import "strconv"
-
-// ID represents currency coinmarketcap enternal id.
-type ID string
-
-// IDFromInt convert int to ID.
-func IDFromInt(id int) ID {
-	return ID(strconv.Itoa(id))
-}
-
-// String convert ID to string.
-func (id ID) String() string {
-	return string(id)
-}
+import (
+	"strconv"
+)
 
 // Currency struct for currency representation.
 type Currency struct {
-	ID     ID
+	ID     string
 	Symbol string
 	Slug   string
 }
 
-// FromID create currency from id.
-func FromID(id int) Currency {
+// ID create currency from id.
+func ID(id int) Currency {
 	return Currency{
-		ID: IDFromInt(id),
+		ID: strconv.Itoa(id),
 	}
 }
 

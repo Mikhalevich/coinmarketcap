@@ -222,7 +222,7 @@ func convertCurrenciesToQueryKey(from []currency.Currency) []string {
 
 	for _, curr := range from {
 		if curr.ID != "" {
-			values = append(values, curr.ID.String())
+			values = append(values, curr.ID)
 
 			continue
 		}
