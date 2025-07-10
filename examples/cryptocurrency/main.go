@@ -34,8 +34,8 @@ func main() {
 
 	quotes, err := cryptoc.QuotesLatest(
 		context.Background(),
-		[]currency.Currency{currency.FromID(btcID), currency.FromID(ltcID)},
-		[]currency.Currency{currency.FromID(usdID)},
+		[]currency.Currency{currency.ID(btcID), currency.ID(ltcID)},
+		[]currency.Currency{currency.ID(usdID)},
 		cryptocurrency.WithQLSkipInvalid(false),
 	)
 	if err != nil {

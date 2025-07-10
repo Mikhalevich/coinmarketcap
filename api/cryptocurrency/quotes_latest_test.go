@@ -32,8 +32,8 @@ func TestQuotesLatestExecutorError(t *testing.T) {
 
 	quotesRsp, err := cryptoc.QuotesLatest(
 		t.Context(),
-		[]currency.Currency{currency.FromID(btcID), currency.FromID(ltcID)},
-		[]currency.Currency{currency.FromID(usdID)},
+		[]currency.Currency{currency.ID(btcID), currency.ID(ltcID)},
+		[]currency.Currency{currency.ID(usdID)},
 	)
 
 	require.Nil(t, quotesRsp)
