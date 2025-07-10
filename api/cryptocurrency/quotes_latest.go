@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -171,17 +172,9 @@ func makeQuotesLatestQuery(
 		query.Add("aux", makeCommaSeparatedValues(options.Aux))
 	}
 
-	query.Add("skip_invalid", boolToString(options.SkipInvalid))
+	query.Add("skip_invalid", strconv.FormatBool(options.SkipInvalid))
 
 	return query.Encode()
-}
-
-func boolToString(b bool) string {
-	if b {
-		return "true"
-	}
-
-	return "false"
 }
 
 func makeCurrencyQueryKey(from []currency.Currency) string {
