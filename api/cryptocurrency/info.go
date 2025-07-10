@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/Mikhalevich/coinmarketcap"
@@ -142,7 +143,7 @@ func makeInfoQuery(
 		query.Add("aux", makeCommaSeparatedValues(options.Aux))
 	}
 
-	query.Add("skip_invalid", boolToString(options.SkipInvalid))
+	query.Add("skip_invalid", strconv.FormatBool(options.SkipInvalid))
 
 	return query.Encode()
 }
