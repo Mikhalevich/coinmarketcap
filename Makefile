@@ -11,6 +11,7 @@ all: build
 build:
 	go build ./api/cryptocurrency
 	go build ./api/fiat
+	go build ./api/key
 
 test:
 	go test ./... -cover
